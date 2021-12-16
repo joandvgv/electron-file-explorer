@@ -1,4 +1,10 @@
-import React, { FunctionComponent, useEffect, useRef, useState } from "react";
+import React, {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 const { grabFiles } = window.electron;
 import { Col } from "antd";
 import { Navigable } from "../molecules/Navigable";
@@ -21,6 +27,7 @@ type FileStructure = {
 };
 
 export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
+  const containerRef = useRef(null);
   const [files, _setFiles] = useState<FileStructure>({ byId: {}, allIds: [] });
 
   const filesRef = useRef(files);
@@ -30,10 +37,12 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
     _setFiles(x);
   };
 
-  const handleKeyPress = (event: KeyboardEvent) => {
+  const handleKeyPress = useCallback((event: KeyboardEvent) => {
     const selectedFile = filesRef.current.allIds.find(
       (item) => filesRef.current.byId[item].selected
     );
+
+    console.log({ selectedFile });
 
     if (event.key === "ArrowDown") {
       handleClick(selectedFile + 1);
@@ -42,7 +51,7 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
     if (event.key === "ArrowUp") {
       handleClick(selectedFile - 1);
     }
-  };
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -66,9 +75,18 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
 
       setFiles(fileStructure);
     })();
-
-    window.addEventListener("keydown", handleKeyPress, true);
   }, [path]);
+
+  useEffect(() => {
+    containerRef.current?.addEventListener("keydown", handleKeyPress, true);
+    return () => {
+      containerRef.current?.removeEventListener(
+        "keydown",
+        handleKeyPress,
+        true
+      );
+    };
+  }, [handleKeyPress, containerRef]);
 
   const handleClick = (id: number) => {
     const current = filesRef.current.byId[id];
@@ -88,7 +106,7 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
   };
 
   return (
-    <Col span={8}>
+    <Col tabIndex={-1} span={8} ref={containerRef}>
       {files.allIds.map((id) => {
         const file = filesRef.current.byId[id];
         return (
