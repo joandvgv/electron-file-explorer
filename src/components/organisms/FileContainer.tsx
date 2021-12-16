@@ -120,9 +120,11 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
               isDirectory={file.isDirectory}
               flex="1 1 0"
             />
-            <Col span={2}>
-              <RightOutlined />
-            </Col>
+            {file.isDirectory && (
+              <Col span={2}>
+                <RightOutlined />
+              </Col>
+            )}
           </Navigable>
         );
       })}
