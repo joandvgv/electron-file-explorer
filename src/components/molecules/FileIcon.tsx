@@ -19,6 +19,7 @@ import {
 } from "@ant-design/icons";
 import { readFileExtension } from "../../utils/files";
 import { Col } from "antd";
+import { WrappedCol } from "./WrappedCol";
 
 type Props = {
   $size: Size;
@@ -68,12 +69,11 @@ export const FileIcon: FunctionComponent<Props> = ({
   const extension = readFileExtension(
     fileName
   ) as keyof typeof extensionIconMap;
-  const IconTest = extensionIconMap[extension] ?? FileOutlined;
+  const IconDynamic = extensionIconMap[extension] ?? FileOutlined;
 
   return (
-    <Col {...props}>
-      <Icon $size={$size} component={<IconTest></IconTest>} />{" "}
-      <Text>{fileName}</Text>
-    </Col>
+    <WrappedCol {...props}>
+      <Icon $size={$size} component={<IconDynamic />} /> <Text>{fileName}</Text>
+    </WrappedCol>
   );
 };

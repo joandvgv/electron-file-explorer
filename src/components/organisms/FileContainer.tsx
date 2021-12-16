@@ -1,16 +1,16 @@
-import React, {
-  FunctionComponent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { FunctionComponent, useEffect, useRef, useState } from "react";
 const { grabFiles } = window.electron;
 import { Col } from "antd";
 import { Navigable } from "../molecules/Navigable";
 import { RightOutlined } from "@ant-design/icons";
 import orderBy from "lodash/orderBy";
 import { FileIcon } from "../molecules/FileIcon";
+import styled from "styled-components";
+import colors from "./../../utils/colors";
+
+const BorderedColumn = styled(Col)`
+  border-right: 4px solid ${colors.border};
+`;
 
 type Props = {
   path?: string;
@@ -37,12 +37,10 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
     _setFiles(x);
   };
 
-  const handleKeyPress = useCallback((event: KeyboardEvent) => {
+  const handleKeyPress = (event: KeyboardEvent) => {
     const selectedFile = filesRef.current.allIds.find(
       (item) => filesRef.current.byId[item].selected
     );
-
-    console.log({ selectedFile });
 
     if (event.key === "ArrowDown") {
       handleClick(selectedFile + 1);
@@ -51,7 +49,7 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
     if (event.key === "ArrowUp") {
       handleClick(selectedFile - 1);
     }
-  }, []);
+  };
 
   useEffect(() => {
     (async () => {
@@ -106,7 +104,7 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
   };
 
   return (
-    <Col tabIndex={-1} span={8} ref={containerRef}>
+    <BorderedColumn tabIndex={-1} span={8} ref={containerRef}>
       {files.allIds.map((id) => {
         const file = filesRef.current.byId[id];
         return (
@@ -128,6 +126,6 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
           </Navigable>
         );
       })}
-    </Col>
+    </BorderedColumn>
   );
 };

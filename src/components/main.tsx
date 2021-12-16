@@ -12,8 +12,9 @@ export const FileExplorer: FunctionComponent = () => {
   const handleAdd = (path: string, index: number) => {
     const existingCard = fileCard[index];
 
-    if (!existingCard)
+    if (!existingCard) {
       return setFileCards((prevState) => [...prevState, { path }]);
+    }
 
     return setFileCards((prevState) =>
       prevState
@@ -43,7 +44,7 @@ export const FileExplorer: FunctionComponent = () => {
   };
 
   return (
-    <Row style={{ flexWrap: "nowrap" }}>
+    <Row gutter={32} style={{ flexWrap: "nowrap" }}>
       {fileCard.map(({ path }, idx) => {
         return (
           <FileContainer
