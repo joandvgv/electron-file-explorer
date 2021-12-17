@@ -3,7 +3,7 @@ import useState from "react-usestateref";
 import { Row } from "antd";
 import { FilePage } from "./pages/FilePage";
 import findLastIndex from "lodash/findLastIndex";
-import { useAddListener } from "./../hooks/use-add-listener";
+import { useAddListener } from "../hooks/use-add-listener";
 
 export const FileExplorer: FunctionComponent = () => {
   const containerRef = useRef<HTMLDivElement>(null);

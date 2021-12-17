@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { FileExplorer } from "./components/main";
+import { FileExplorer } from "./components/FileExplorer";
 import "antd/dist/antd.variable.min.css";
 import { ConfigProvider } from "antd";
 import colors from "./utils/colors";
