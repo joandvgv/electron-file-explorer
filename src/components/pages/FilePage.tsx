@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useEffect, useRef } from "react";
-import { Col, Empty } from "antd";
+import { Col, Empty, Modal } from "antd";
 import useState from "react-usestateref";
-import { Modal } from "antd";
 import styled from "styled-components";
 import colors from "../../utils/colors";
 import { useAddListener } from "../../hooks/use-add-listener";
@@ -23,7 +22,7 @@ type Props = {
   onSelect: (path: string, operation: "add" | "remove") => void;
 };
 
-export const FileContainer: FunctionComponent<Props> = ({
+export const FilePage: FunctionComponent<Props> = ({
   path,
   onSelect,
   isActive,

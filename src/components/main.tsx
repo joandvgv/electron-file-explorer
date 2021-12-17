@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useRef } from "react";
 import useState from "react-usestateref";
 import { Row } from "antd";
-import { FileContainer } from "./pages/FilePage";
+import { FilePage } from "./pages/FilePage";
 import findLastIndex from "lodash/findLastIndex";
 import { useAddListener } from "./../hooks/use-add-listener";
 
@@ -101,14 +101,14 @@ export const FileExplorer: FunctionComponent = () => {
     >
       {fileCard.map(({ path, active }, idx) => {
         return (
-          <FileContainer
+          <FilePage
             key={`container-${idx}`}
             path={path}
             isActive={active}
             onSelect={(newPath, operation) =>
               handleSelect(newPath, operation, idx + 1)
             }
-          ></FileContainer>
+          ></FilePage>
         );
       })}
     </Row>
