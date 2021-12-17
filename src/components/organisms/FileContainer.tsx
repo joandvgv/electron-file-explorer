@@ -8,6 +8,9 @@ import orderBy from "lodash/orderBy";
 import { FileIcon } from "../molecules/FileIcon";
 import styled from "styled-components";
 import colors from "./../../utils/colors";
+import { useAddListener } from "./../../hooks/use-add-listener";
+import { FileStructure } from "../../@types/file";
+import { useLoadFiles } from "../../hooks/use-load-files";
 
 const BorderedColumn = styled(Col)`
   border-right: 4px solid ${colors.border};
@@ -19,21 +22,12 @@ type Props = {
   onSelect: (path: string, operation: "add" | "remove") => void;
 };
 
-interface FileRow extends FileTree {
-  selected?: boolean;
-}
-
-type FileStructure = {
-  byId: { [key: number]: FileRow };
-  allIds: number[];
-};
-
 export const FileContainer: FunctionComponent<Props> = ({
   path,
   onSelect,
   isActive,
 }) => {
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [files, setFiles, filesRef] = useState<FileStructure>({
     byId: {},
     allIds: [],
@@ -55,29 +49,7 @@ export const FileContainer: FunctionComponent<Props> = ({
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      const directory = await grabFiles(path);
-
-      const fileStructure = orderBy(
-        directory,
-        ["isDirectory", "name"],
-        ["desc", "asc"]
-      )
-        .filter((item) => !/(^|\/)\.[^/.]/g.test(item.name))
-        .reduce(
-          (acc, file, idx) => {
-            acc.byId[idx] = file;
-            acc.allIds.push(idx);
-
-            return acc;
-          },
-          { byId: {}, allIds: [] } as FileStructure
-        );
-
-      setFiles(fileStructure);
-    })();
-  }, [path]);
+  useLoadFiles(path, (fileStructure) => setFiles(fileStructure));
 
   useEffect(() => {
     const selectedFile = files.allIds.find((item) => files.byId[item].selected);
@@ -87,16 +59,7 @@ export const FileContainer: FunctionComponent<Props> = ({
     }
   }, [isActive]);
 
-  useEffect(() => {
-    containerRef.current?.addEventListener("keydown", handleKeyPress, true);
-    return () => {
-      containerRef.current?.removeEventListener(
-        "keydown",
-        handleKeyPress,
-        true
-      );
-    };
-  }, [handleKeyPress, containerRef]);
+  useAddListener(containerRef, handleKeyPress, "keydown");
 
   const handleClick = (id: number) => {
     const current = files.byId[id];

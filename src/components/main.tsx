@@ -3,9 +3,10 @@ import useState from "react-usestateref";
 import { Row } from "antd";
 import { FileContainer } from "./organisms/FileContainer";
 import findLastIndex from "lodash/findLastIndex";
+import { useAddListener } from "./../hooks/use-add-listener";
 
 export const FileExplorer: FunctionComponent = () => {
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [fileCard, setFileCards, fileCardRef] = useState([
     {
       path: undefined,
@@ -77,16 +78,7 @@ export const FileExplorer: FunctionComponent = () => {
     setFileCards((prevState) => prevState.filter((_, idx) => idx < index));
   };
 
-  useEffect(() => {
-    containerRef.current?.addEventListener("keydown", handleKeyPress, true);
-    return () => {
-      containerRef.current?.removeEventListener(
-        "keydown",
-        handleKeyPress,
-        true
-      );
-    };
-  }, [handleKeyPress, containerRef]);
+  useAddListener(containerRef, handleKeyPress, "keydown");
 
   const handleSelect = (
     path: string,
