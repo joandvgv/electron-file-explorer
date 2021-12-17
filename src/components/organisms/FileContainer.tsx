@@ -99,17 +99,17 @@ export const FileContainer: FunctionComponent<Props> = ({
   }, [handleKeyPress, containerRef]);
 
   const handleClick = (id: number) => {
-    const current = filesRef.current.byId[id];
+    const current = files.byId[id];
 
-    filesRef.current.allIds.forEach((idx) => {
+    files.allIds.forEach((idx) => {
       if (idx !== id) {
-        filesRef.current.byId[idx].selected = false;
+        files.byId[idx].selected = false;
       }
     });
 
     current.selected = !current.selected;
 
-    setFiles({ ...filesRef.current });
+    setFiles({ ...files });
     if (current.isDirectory) {
       onSelect(current.path, current.selected ? "add" : "remove");
     }
