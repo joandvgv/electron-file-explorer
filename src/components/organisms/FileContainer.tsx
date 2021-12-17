@@ -1,16 +1,15 @@
 import React, { FunctionComponent, useEffect, useRef } from "react";
-const { grabFiles } = window.electron;
 import { Col, Empty } from "antd";
 import useState from "react-usestateref";
 import { Navigable } from "../molecules/Navigable";
 import { RightOutlined } from "@ant-design/icons";
-import orderBy from "lodash/orderBy";
 import { FileIcon } from "../molecules/FileIcon";
 import styled from "styled-components";
 import colors from "./../../utils/colors";
 import { useAddListener } from "./../../hooks/use-add-listener";
 import { FileStructure } from "../../@types/file";
 import { useLoadFiles } from "../../hooks/use-load-files";
+import { useMultipleClicks } from "../../hooks/use-multiple-clicks";
 
 const BorderedColumn = styled(Col)`
   border-right: 4px solid ${colors.border};
@@ -61,22 +60,35 @@ export const FileContainer: FunctionComponent<Props> = ({
 
   useAddListener(containerRef, handleKeyPress, "keydown");
 
-  const handleClick = (id: number) => {
+  const handleClick = (
+    id: number,
+    property: "selected" | "editing" = "selected"
+  ) => {
     const current = files.byId[id];
 
     files.allIds.forEach((idx) => {
       if (idx !== id) {
-        files.byId[idx].selected = false;
+        files.byId[idx][property] = false;
       }
     });
 
-    current.selected = !current.selected;
+    current[property] = !current[property];
 
     setFiles({ ...files });
-    if (current.isDirectory) {
+    if (current.isDirectory && property === "selected") {
       onSelect(current.path, current.selected ? "add" : "remove");
     }
   };
+
+  const handleSingleClick = (_: React.UIEvent<HTMLElement>, id: number) => {
+    handleClick(id);
+  };
+
+  const handleDoubleClick = (_: React.UIEvent<HTMLElement>, id: number) => {
+    handleClick(id, "editing");
+  };
+
+  const clickHandler = useMultipleClicks(handleSingleClick, handleDoubleClick);
 
   return hasFiles ? (
     <BorderedColumn tabIndex={-1} span={8} ref={containerRef}>
@@ -85,9 +97,10 @@ export const FileContainer: FunctionComponent<Props> = ({
         return (
           <Navigable
             align="middle"
+            id={`${id}`}
             key={`${file.name}-${id}`}
             $selected={file.selected}
-            onClick={() => handleClick(id)}
+            onClick={(event) => clickHandler(event, id)}
           >
             <FileIcon
               $size="lg"
