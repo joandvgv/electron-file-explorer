@@ -1,7 +1,7 @@
-import React, { FunctionComponent, useEffect, useRef } from "react";
+import React, { FunctionComponent, useRef } from "react";
 import useState from "react-usestateref";
 import { Row } from "antd";
-import { FileContainer } from "./organisms/FileContainer";
+import { FileContainer } from "./pages/FilePage";
 import findLastIndex from "lodash/findLastIndex";
 import { useAddListener } from "./../hooks/use-add-listener";
 

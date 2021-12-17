@@ -3,13 +3,13 @@ import { Col, Empty } from "antd";
 import useState from "react-usestateref";
 import { Modal } from "antd";
 import styled from "styled-components";
-import colors from "./../../utils/colors";
-import { useAddListener } from "./../../hooks/use-add-listener";
+import colors from "../../utils/colors";
+import { useAddListener } from "../../hooks/use-add-listener";
 import { FileStructure } from "../../@types/file";
 import { useLoadFiles } from "../../hooks/use-load-files";
 import { useMultipleClicks } from "../../hooks/use-multiple-clicks";
-import { FolderRow } from "./FolderRow";
-import { EditableDirectory } from "./EditableDirectory";
+import { FolderRow } from "../organisms/FolderRow";
+import { EditableDirectory } from "../organisms/EditableDirectory";
 import { useModal } from "../../hooks/use-modal";
 import { Text } from "../atoms/Text";
 
