@@ -3,7 +3,7 @@ import { Row } from "antd";
 import colors from "../../utils/colors";
 
 const getStyles = ($selected: boolean) => css`
-  background-color: ${$selected ? colors.secondary : colors.white};
+  background-color: ${$selected ? colors.secondaryColor : colors.white};
 `;
 
 export const Navigable = styled(Row)<{

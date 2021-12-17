@@ -1,6 +1,6 @@
 import React from "react";
 import { FunctionComponent } from "react";
-import { Folder, Icon, Size } from "../atoms/Folder";
+import { Folder, Icon } from "../atoms/Folder";
 import { Text } from "../atoms/Text";
 import {
   CodeSandboxOutlined,
@@ -20,6 +20,7 @@ import {
 import { readFileExtension } from "../../utils/files";
 import { Col } from "antd";
 import { WrappedCol } from "./WrappedCol";
+import { Size } from "../../utils/constants";
 
 type Props = {
   $size: Size;

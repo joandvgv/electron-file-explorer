@@ -1,7 +1,8 @@
 interface Window {
   electron: {
     grabFiles: (path?: string) => Promise<FileTree[]>;
-    rename: (path: string, name: string) => Promise<void>;
+    renameDirectory: (path: string, name: string) => Promise<void>;
+    removeDirectory: (path: string) => Promise<void>;
   };
 }
 

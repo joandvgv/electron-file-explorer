@@ -1,9 +1,7 @@
 import React, { FunctionComponent, useEffect, useRef } from "react";
 import { Col, Empty } from "antd";
 import useState from "react-usestateref";
-import { Navigable } from "../molecules/Navigable";
-import { RightOutlined } from "@ant-design/icons";
-import { FileIcon } from "../molecules/FileIcon";
+import { Modal } from "antd";
 import styled from "styled-components";
 import colors from "./../../utils/colors";
 import { useAddListener } from "./../../hooks/use-add-listener";
@@ -12,9 +10,11 @@ import { useLoadFiles } from "../../hooks/use-load-files";
 import { useMultipleClicks } from "../../hooks/use-multiple-clicks";
 import { FolderRow } from "./FolderRow";
 import { EditableDirectory } from "./EditableDirectory";
+import { useModal } from "../../hooks/use-modal";
+import { Text } from "../atoms/Text";
 
 const BorderedColumn = styled(Col)`
-  border-right: 4px solid ${colors.border};
+  border-right: 4px solid ${colors.primaryColor};
 `;
 
 type Props = {
@@ -34,6 +34,20 @@ export const FileContainer: FunctionComponent<Props> = ({
     allIds: [],
   });
 
+  const handleDelete = async () => {
+    const selectedFile = files.allIds.find((item) => files.byId[item].selected);
+    const currentFile = files.byId[selectedFile];
+
+    await window.electron.removeDirectory(currentFile.path);
+    setFiles((currentFiles) => ({
+      ...currentFiles,
+      allIds: currentFiles.allIds.filter((idx) => idx !== selectedFile),
+    }));
+  };
+
+  const [isModalVisible, showModal, handleOk, handleCancel] =
+    useModal(handleDelete);
+
   const hasFiles = files.allIds.length > 0;
 
   const handleKeyPress = (event: KeyboardEvent) => {
@@ -47,6 +61,10 @@ export const FileContainer: FunctionComponent<Props> = ({
 
     if (event.key === "ArrowUp") {
       handleClick(selectedFile - 1);
+    }
+
+    if (event.key === "Delete") {
+      showModal();
     }
   };
 
@@ -100,27 +118,38 @@ export const FileContainer: FunctionComponent<Props> = ({
     current.name = name;
     setFiles({ ...files });
     if (current.name !== name) {
-      window.electron.rename(current.path, name);
+      window.electron.renameDirectory(current.path, name);
     }
   };
 
   const clickHandler = useMultipleClicks(handleSingleClick, handleDoubleClick);
 
   return hasFiles ? (
-    <BorderedColumn tabIndex={-1} span={8} ref={containerRef}>
-      {files.allIds.map((id) => {
-        const file = filesRef.current.byId[id];
-        const Component = file.editing ? EditableDirectory : FolderRow;
-        return (
-          <Component
-            id={id}
-            file={file}
-            onClick={(event) => clickHandler(event, id)}
-            onFinish={handleNameChange}
-          ></Component>
-        );
-      })}
-    </BorderedColumn>
+    <>
+      <BorderedColumn tabIndex={-1} span={8} ref={containerRef}>
+        {files.allIds.map((id) => {
+          const file = filesRef.current.byId[id];
+          const Component = file.editing ? EditableDirectory : FolderRow;
+          return (
+            <Component
+              id={id}
+              file={file}
+              onClick={(event) => clickHandler(event, id)}
+              onFinish={handleNameChange}
+            ></Component>
+          );
+        })}
+      </BorderedColumn>
+      <Modal
+        title="Delete Directory"
+        okText="Yes, remove please 😊"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <Text size="sm">Are you sure you want to delete this directory?</Text>
+      </Modal>
+    </>
   ) : (
     <Col span={8}>
       <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
