@@ -1,26 +1,63 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useRef } from "react";
+import useState from "react-usestateref";
 import { Row } from "antd";
 import { FileContainer } from "./organisms/FileContainer";
+import findLastIndex from "lodash/findLastIndex";
 
 export const FileExplorer: FunctionComponent = () => {
-  const [fileCard, setFileCards] = useState([
+  const containerRef = useRef(null);
+  const [fileCard, setFileCards, fileCardRef] = useState([
     {
       path: undefined,
+      active: false,
     },
   ]);
+
+  const handleKeyPress = (event: KeyboardEvent) => {
+    const selectedFile = findLastIndex(
+      fileCardRef.current,
+      (item) => item.active
+    );
+
+    if (event.key === "ArrowRight") {
+      setFileCards((currentValue) =>
+        currentValue.map((item, idx) => {
+          if (idx === (selectedFile > -1 ? selectedFile + 1 : 1)) {
+            return { ...item, active: true };
+          }
+          return item;
+        })
+      );
+    }
+
+    if (event.key === "ArrowLeft" && selectedFile) {
+      setFileCards((currentValue) =>
+        currentValue.map((item, idx) => {
+          if (idx >= selectedFile) {
+            return { ...item, active: false };
+          }
+          return item;
+        })
+      );
+    }
+  };
 
   const handleAdd = (path: string, index: number) => {
     const existingCard = fileCard[index];
 
     if (!existingCard) {
-      return setFileCards((prevState) => [...prevState, { path }]);
+      return setFileCards((prevState) => [
+        ...prevState,
+        { path, active: false },
+      ]);
     }
 
     return setFileCards((prevState) =>
       prevState
         .map((item, idx) => {
           if (idx === index) {
-            return { ...item, path };
+            console.log({ idx, index });
+            return { ...item, path, active: true };
           }
           return item;
         })
@@ -28,8 +65,28 @@ export const FileExplorer: FunctionComponent = () => {
     );
   };
 
-  const handleRemove = (index: number) =>
+  const handleRemove = (index: number) => {
+    setFileCards((currentValue) =>
+      currentValue.map((item, idx) => {
+        if (idx >= index) {
+          return { ...item, active: false };
+        }
+        return item;
+      })
+    );
     setFileCards((prevState) => prevState.filter((_, idx) => idx < index));
+  };
+
+  useEffect(() => {
+    containerRef.current?.addEventListener("keydown", handleKeyPress, true);
+    return () => {
+      containerRef.current?.removeEventListener(
+        "keydown",
+        handleKeyPress,
+        true
+      );
+    };
+  }, [handleKeyPress, containerRef]);
 
   const handleSelect = (
     path: string,
@@ -44,12 +101,18 @@ export const FileExplorer: FunctionComponent = () => {
   };
 
   return (
-    <Row gutter={32} style={{ flexWrap: "nowrap" }}>
-      {fileCard.map(({ path }, idx) => {
+    <Row
+      tabIndex={-1}
+      ref={containerRef}
+      gutter={32}
+      style={{ flexWrap: "nowrap" }}
+    >
+      {fileCard.map(({ path, active }, idx) => {
         return (
           <FileContainer
             key={`container-${idx}`}
             path={path}
+            isActive={active}
             onSelect={(newPath, operation) =>
               handleSelect(newPath, operation, idx + 1)
             }

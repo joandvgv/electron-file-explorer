@@ -1,6 +1,7 @@
-import React, { FunctionComponent, useEffect, useRef, useState } from "react";
+import React, { FunctionComponent, useEffect, useRef } from "react";
 const { grabFiles } = window.electron;
-import { Col } from "antd";
+import { Col, Empty } from "antd";
+import useState from "react-usestateref";
 import { Navigable } from "../molecules/Navigable";
 import { RightOutlined } from "@ant-design/icons";
 import orderBy from "lodash/orderBy";
@@ -14,6 +15,7 @@ const BorderedColumn = styled(Col)`
 
 type Props = {
   path?: string;
+  isActive: boolean;
   onSelect: (path: string, operation: "add" | "remove") => void;
 };
 
@@ -26,16 +28,18 @@ type FileStructure = {
   allIds: number[];
 };
 
-export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
+export const FileContainer: FunctionComponent<Props> = ({
+  path,
+  onSelect,
+  isActive,
+}) => {
   const containerRef = useRef(null);
-  const [files, _setFiles] = useState<FileStructure>({ byId: {}, allIds: [] });
+  const [files, setFiles, filesRef] = useState<FileStructure>({
+    byId: {},
+    allIds: [],
+  });
 
-  const filesRef = useRef(files);
-
-  const setFiles = (x: FileStructure) => {
-    filesRef.current = x;
-    _setFiles(x);
-  };
+  const hasFiles = files.allIds.length > 0;
 
   const handleKeyPress = (event: KeyboardEvent) => {
     const selectedFile = filesRef.current.allIds.find(
@@ -76,6 +80,14 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
   }, [path]);
 
   useEffect(() => {
+    const selectedFile = files.allIds.find((item) => files.byId[item].selected);
+
+    if (isActive && !selectedFile && hasFiles) {
+      handleClick(0);
+    }
+  }, [isActive]);
+
+  useEffect(() => {
     containerRef.current?.addEventListener("keydown", handleKeyPress, true);
     return () => {
       containerRef.current?.removeEventListener(
@@ -103,7 +115,7 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
     }
   };
 
-  return (
+  return hasFiles ? (
     <BorderedColumn tabIndex={-1} span={8} ref={containerRef}>
       {files.allIds.map((id) => {
         const file = filesRef.current.byId[id];
@@ -129,5 +141,9 @@ export const FileContainer: FunctionComponent<Props> = ({ path, onSelect }) => {
         );
       })}
     </BorderedColumn>
+  ) : (
+    <Col span={8}>
+      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+    </Col>
   );
 };
