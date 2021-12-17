@@ -11,6 +11,7 @@ import { FolderRow } from "../organisms/FolderRow";
 import { EditableDirectory } from "../organisms/EditableDirectory";
 import { useModal } from "../../hooks/use-modal";
 import { Text } from "../atoms/Text";
+import { keys } from "../../utils/constants";
 
 const BorderedColumn = styled(Col)`
   border-right: 4px solid ${colors.primaryColor};
@@ -50,20 +51,21 @@ export const FilePage: FunctionComponent<Props> = ({
   const hasFiles = files.allIds.length > 0;
 
   const handleKeyPress = (event: KeyboardEvent) => {
-    const selectedFile = filesRef.current.allIds.find(
+    const { allIds } = filesRef.current;
+    const selectedFile = allIds.find(
       (item) => filesRef.current.byId[item].selected
     );
 
-    if (event.key === "ArrowDown") {
+    if (event.key === keys.Del) {
+      return showModal();
+    }
+
+    if (event.key === keys.Down && selectedFile < allIds.length - 1) {
       handleClick(selectedFile + 1);
     }
 
-    if (event.key === "ArrowUp") {
+    if (event.key === keys.Up && selectedFile > 0) {
       handleClick(selectedFile - 1);
-    }
-
-    if (event.key === "Delete") {
-      showModal();
     }
   };
 
@@ -72,8 +74,16 @@ export const FilePage: FunctionComponent<Props> = ({
   useEffect(() => {
     const selectedFile = files.allIds.find((item) => files.byId[item].selected);
 
-    if (isActive && !selectedFile && hasFiles) {
-      handleClick(0);
+    if (isActive && hasFiles) {
+      containerRef.current.focus();
+    }
+
+    if (selectedFile) {
+      handleClick(selectedFile);
+    }
+
+    if (hasFiles) {
+      handleClick(selectedFile ?? 0);
     }
   }, [isActive]);
 
@@ -94,8 +104,10 @@ export const FilePage: FunctionComponent<Props> = ({
     current[property] = !current[property];
 
     setFiles({ ...files });
-    if (current.isDirectory && property === "selected") {
-      onSelect(current.path, current.selected ? "add" : "remove");
+    const operation = current.selected ? "add" : "remove";
+    const shouldExpand = current.isDirectory && property === "selected";
+    if (shouldExpand) {
+      onSelect(current.path, operation);
     }
   };
 
@@ -131,6 +143,7 @@ export const FilePage: FunctionComponent<Props> = ({
           const Component = file.editing ? EditableDirectory : FolderRow;
           return (
             <Component
+              key={`file-${id}`}
               id={id}
               file={file}
               onClick={(event) => clickHandler(event, id)}

@@ -4,6 +4,7 @@ import { Row } from "antd";
 import { FilePage } from "./pages/FilePage";
 import findLastIndex from "lodash/findLastIndex";
 import { useAddListener } from "../hooks/use-add-listener";
+import { keys } from "../utils/constants";
 
 export const FileExplorer: FunctionComponent = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -14,32 +15,42 @@ export const FileExplorer: FunctionComponent = () => {
     },
   ]);
 
+  const [lastAction, setLastAction] = useState<"left" | "right" | null>(null);
+
   const handleKeyPress = (event: KeyboardEvent) => {
-    const selectedFile = findLastIndex(
+    const activeCard = findLastIndex(
       fileCardRef.current,
       (item) => item.active
     );
 
-    if (event.key === "ArrowRight") {
+    if (event.key === keys.Right) {
       setFileCards((currentValue) =>
         currentValue.map((item, idx) => {
-          if (idx === (selectedFile > -1 ? selectedFile + 1 : 1)) {
+          const hasActiveCard = activeCard > -1;
+
+          const indexToCompare = hasActiveCard ? activeCard + 1 : 1;
+          if (idx === indexToCompare && idx !== 0) {
+            return { ...item, active: true };
+          }
+          return { ...item, active: false };
+        })
+      );
+      setLastAction("right");
+    }
+
+    if (event.key === keys.Left && activeCard) {
+      setFileCards((currentValue) =>
+        currentValue.map((item, idx) => {
+          if (idx >= activeCard) {
+            return { ...item, active: false };
+          }
+          if (idx === activeCard - 1) {
             return { ...item, active: true };
           }
           return item;
         })
       );
-    }
-
-    if (event.key === "ArrowLeft" && selectedFile) {
-      setFileCards((currentValue) =>
-        currentValue.map((item, idx) => {
-          if (idx >= selectedFile) {
-            return { ...item, active: false };
-          }
-          return item;
-        })
-      );
+      setLastAction("left");
     }
   };
 
@@ -57,8 +68,7 @@ export const FileExplorer: FunctionComponent = () => {
       prevState
         .map((item, idx) => {
           if (idx === index) {
-            console.log({ idx, index });
-            return { ...item, path, active: true };
+            return { ...item, path, active: false };
           }
           return item;
         })
@@ -67,6 +77,9 @@ export const FileExplorer: FunctionComponent = () => {
   };
 
   const handleRemove = (index: number) => {
+    const shouldRemove = lastAction === "left";
+    if (!shouldRemove) return;
+
     setFileCards((currentValue) =>
       currentValue.map((item, idx) => {
         if (idx >= index) {
@@ -75,6 +88,7 @@ export const FileExplorer: FunctionComponent = () => {
         return item;
       })
     );
+
     setFileCards((prevState) => prevState.filter((_, idx) => idx < index));
   };
 
@@ -108,7 +122,7 @@ export const FileExplorer: FunctionComponent = () => {
             onSelect={(newPath, operation) =>
               handleSelect(newPath, operation, idx + 1)
             }
-          ></FilePage>
+          />
         );
       })}
     </Row>

@@ -12,3 +12,11 @@ export type Size = keyof typeof sizesMap;
 export const getFontSize = (size: Size): FlattenSimpleInterpolation => css`
   font-size: ${sizesMap[size] || "sm"};
 `;
+
+export enum keys {
+  Right = "ArrowRight",
+  Left = "ArrowLeft",
+  Up = "ArrowUp",
+  Down = "ArrowDown",
+  Del = "Delete",
+}

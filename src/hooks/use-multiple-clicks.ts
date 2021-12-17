@@ -25,6 +25,6 @@ export const useMultipleClicks = (
 
   return (event: React.UIEvent<HTMLElement>, ...args: unknown[]) => {
     event.persist();
-    debounceHandler(event, args);
+    debounceHandler(event, ...args);
   };
 };
