@@ -90,6 +90,20 @@ export const FileContainer: FunctionComponent<Props> = ({
     handleClick(id, "editing");
   };
 
+  const handleNameChange = (name: string) => {
+    const selectedFile = files.allIds.findIndex(
+      (item) => files.byId[item].editing
+    );
+
+    const current = files.byId[selectedFile];
+    current.editing = false;
+    current.name = name;
+    setFiles({ ...files });
+    if (current.name !== name) {
+      window.electron.rename(current.path, name);
+    }
+  };
+
   const clickHandler = useMultipleClicks(handleSingleClick, handleDoubleClick);
 
   return hasFiles ? (
@@ -102,6 +116,7 @@ export const FileContainer: FunctionComponent<Props> = ({
             id={id}
             file={file}
             onClick={(event) => clickHandler(event, id)}
+            onFinish={handleNameChange}
           ></Component>
         );
       })}
