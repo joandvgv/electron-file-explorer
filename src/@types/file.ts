@@ -1,4 +1,4 @@
-interface FileRow extends FileTree {
+export interface FileRow extends FileTree {
   selected?: boolean;
   editing?: boolean;
 }

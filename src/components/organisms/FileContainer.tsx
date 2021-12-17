@@ -10,6 +10,8 @@ import { useAddListener } from "./../../hooks/use-add-listener";
 import { FileStructure } from "../../@types/file";
 import { useLoadFiles } from "../../hooks/use-load-files";
 import { useMultipleClicks } from "../../hooks/use-multiple-clicks";
+import { FolderRow } from "./FolderRow";
+import { EditableDirectory } from "./EditableDirectory";
 
 const BorderedColumn = styled(Col)`
   border-right: 4px solid ${colors.border};
@@ -94,26 +96,13 @@ export const FileContainer: FunctionComponent<Props> = ({
     <BorderedColumn tabIndex={-1} span={8} ref={containerRef}>
       {files.allIds.map((id) => {
         const file = filesRef.current.byId[id];
+        const Component = file.editing ? EditableDirectory : FolderRow;
         return (
-          <Navigable
-            align="middle"
-            id={`${id}`}
-            key={`${file.name}-${id}`}
-            $selected={file.selected}
+          <Component
+            id={id}
+            file={file}
             onClick={(event) => clickHandler(event, id)}
-          >
-            <FileIcon
-              $size="lg"
-              fileName={file.name}
-              isDirectory={file.isDirectory}
-              flex="1 1 0"
-            />
-            {file.isDirectory && (
-              <Col span={2}>
-                <RightOutlined />
-              </Col>
-            )}
-          </Navigable>
+          ></Component>
         );
       })}
     </BorderedColumn>
